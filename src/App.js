@@ -1,23 +1,28 @@
-import logo from './logo.svg';
-import './App.css';
+import Board from './Components/Board';
+import { createGlobalState } from 'react-hooks-global-state';
+import Confetti from 'react-confetti';
+import toast, { Toaster } from 'react-hot-toast';
+import useWindowSize from 'react-use/lib/useWindowSize';
+import Navbar from './Components/Navbar';
+
+export const { useGlobalState } = createGlobalState({
+  card1: {"type": null, "id": null },
+  card2: {"type": null, "id": null },
+  win: false
+});
 
 function App() {
+  const { width, height } = useWindowSize()
+  const [win] = useGlobalState('win');
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Navbar></Navbar>
+      {win == true && <Toaster></Toaster> }
+      {win == true && <Confetti
+        width={width}
+        height={height}
+        ></Confetti> }
+      <Board></Board>
     </div>
   );
 }
