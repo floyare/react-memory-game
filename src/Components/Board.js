@@ -2,7 +2,7 @@ import { useGlobalState } from "../App";
 import {useState, useEffect} from "react";
 import toast, { Toaster } from 'react-hot-toast';
 
-//game-icons.net free icons
+//TODO: timer with how long it took to solve memory game.
 
 const Board = () => {
   const [card1, setCard1] = useGlobalState('card1');
@@ -15,6 +15,10 @@ const Board = () => {
   const [card1Update, setCard1Update] = useState(false);
   const [card2Update, setCard2Update] = useState(false);
   const [win, setWin] = useGlobalState('win');
+
+  const [seconds, setSeconds] = useState(0);
+  const [timerActive, setTimerActive] = useState(true);
+
   const letters = ["a", "b", "c", "d", "e", "f", "g", "h", "a", "b", "c", "d", "e", "f", "g", "h"];
   const times = [1,2,3,4];
   let id = -1;
@@ -36,13 +40,26 @@ const Board = () => {
   }
 
   useEffect(() => {
+    let interval = false;
+    if(timerActive){
+      interval = setInterval(() => {
+        setSeconds(seconds => seconds + 1);
+        console.log(seconds);
+      }, 1000);
+    }else if(!timerActive && seconds !== 0){
+      clearInterval(interval);
+    }
+    return () => clearInterval(interval);
+  }, [timerActive, seconds]);
+
+  useEffect(() => {
     assignTypes(letters);
     setLoaded(true);
   }, [])
 
   useEffect(() => {
     if(card1Update){
-      setCompleted([...completed, card1]);
+      setCompleted([...completed, card1.id]);
       setCard1Update(false);
       setCard2Update(true);
       const obj2 = {"type": null, "id": null};
@@ -52,24 +69,31 @@ const Board = () => {
 
   useEffect(() => {
     if(card2Update){
-      setCompleted([...completed, card2]);
+      setCompleted([...completed, card2.id]);
       setCard2Update(false);
       const obj2 = {"type": null, "id": null};
       setCard2(obj2);
     }
   }, [card2Update])
 
+  function secondsToTime(e){
+    const h = Math.floor(e / 3600).toString().padStart(2,'0'),
+          m = Math.floor(e % 3600 / 60).toString().padStart(2,'0'),
+          s = Math.floor(e % 60).toString().padStart(2,'0');
+    
+    return h + ':' + m + ':' + s;
+}
+
   useEffect(() => {
     if(cardsCompleted){
       if(card2.type !== null){
         if(card1.type === card2.type){
-          console.log("prev " + points);
           setPoints((prev) => prev + 1);
-          console.log("aft " + points);
           if(points == (letters.length / 2) - 1){
-            toast('You win!', {
+            toast('You win! Your time: ' + secondsToTime(seconds), {
               icon: '👏',
             });
+            setTimerActive(false);
             setWin(true);
           }else{
             setCard1Update(true);
