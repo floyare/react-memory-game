@@ -44,7 +44,6 @@ const Board = () => {
     if(timerActive){
       interval = setInterval(() => {
         setSeconds(seconds => seconds + 1);
-        console.log(seconds);
       }, 1000);
     }else if(!timerActive && seconds !== 0){
       clearInterval(interval);
