@@ -62,10 +62,6 @@ const Board = () => {
   }, [])
 
   useEffect(() => {
-    console.log(types);
-  }, [types])
-
-  useEffect(() => {
     if(card1Update){
       setCompleted([...completed, card1.id]);
       setCard1Update(false);
