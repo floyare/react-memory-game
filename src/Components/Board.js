@@ -16,6 +16,7 @@ const Board = () => {
   const [card2Update, setCard2Update] = useState(false);
   const [win, setWin] = useGlobalState('win');
 
+
   const [seconds, setSeconds] = useState(0);
   const [timerActive, setTimerActive] = useState(true);
 
@@ -29,14 +30,18 @@ const Board = () => {
 
   const assignTypes = (lettersLocal) => {
     let tempLetters = lettersLocal;
+    let tempTypes = types;
     for(var b = 0; b < 16; b++){
-      if(document.getElementById(b).getAttribute('mType') === null){
-        let id = randomNumber(0,tempLetters.length);
-        document.getElementById(b).setAttribute('mType', tempLetters[id]);
+      if(tempTypes[b] === undefined){
+        let id = randomNumber(0, tempLetters.length);
+        const obj = {"id": b, "type": tempLetters[id]};
+        tempTypes.push(obj);
         const index = tempLetters.indexOf(tempLetters[id]);
         tempLetters.splice(index, 1);
       }
     }
+
+    setTypes(tempTypes);
   }
 
   useEffect(() => {
@@ -55,6 +60,10 @@ const Board = () => {
     assignTypes(letters);
     setLoaded(true);
   }, [])
+
+  useEffect(() => {
+    console.log(types);
+  }, [types])
 
   useEffect(() => {
     if(card1Update){
@@ -115,7 +124,6 @@ const Board = () => {
 
   const handleClick = async (e) => {
     if(card1.type === null || card2.type === null){
-      assignTypes(types);
       var parent = e.target.classList.contains("front") || e.target.classList.contains("back") ? e.target.parentNode : e.target.parentNode.parentNode;
       const id = parent.id;
       if(!completed.includes(id)){
@@ -125,7 +133,8 @@ const Board = () => {
         else
           Div.classList.add("flip");
   
-        const obj = {"type": Div.getAttribute("mType"), "id": id};
+        
+        const obj = {"type": types[id].type, "id": id};
         if(card1.type === null){
           setCard1(obj);
         }else if(card2.type === null){
@@ -149,7 +158,7 @@ const Board = () => {
                   <h1>?</h1>
                 </div>
                 <div className="back">
-                  <img src={loaded ? "/icons/" +  document.getElementById(id).getAttribute("mType") + ".png" : "/icons/unknown.png"}></img>
+                  <img src={loaded ? "/icons/" +  types[id].type + ".png" : "/icons/unknown.png"}></img>
                 </div>
               </div>
             </li>);
